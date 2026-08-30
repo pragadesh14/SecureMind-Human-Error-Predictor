@@ -1,0 +1,6 @@
+{% extends "base.html" %}{% block title %}{{"Create account" if mode=="register" else "Login"}} — SecureMind{% endblock %}{% block content %}
+<div class="auth"><div class="panel"><div class="eyebrow">SECUREMIND</div><h1>{{"Create your account" if mode=="register" else "Welcome back"}}</h1>
+{% if error %}<div class="alert">{{error}}</div>{% endif %}<form method="post">
+{% if mode=="register" %}<label>Username<input name="username" required></label><label>Email<input type="email" name="email" required></label>{% else %}<label>Username<input name="username" required></label>{% endif %}
+<label>Password<input type="password" name="password" minlength="6" required></label><button class="btn full">{{"Create Account" if mode=="register" else "Login"}}</button></form>
+{% if mode=="login" %}<p class="muted">Demo: <b>demo</b> / <b>demo123</b></p>{% endif %}</div></div>{% endblock %}

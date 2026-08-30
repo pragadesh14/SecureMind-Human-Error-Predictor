@@ -1,0 +1,5 @@
+{% extends "base.html" %}{% block title %}Scenario Library — SecureMind{% endblock %}{% block content %}
+<div class="pagehead"><div><div class="eyebrow">SCENARIO LIBRARY</div><h1>Test your security instincts.</h1><p>Choose a realistic situation and see how your decision performs.</p></div></div>
+<form class="filters"><input name="q" value="{{q}}" placeholder="Search scenarios..."><select name="category"><option value="">All categories</option>{% for c in categories %}<option {% if c==cat %}selected{% endif %}>{{c}}</option>{% endfor %}</select><button class="btn">Filter</button></form>
+<div class="scenario-grid">{% for s in scenarios %}<article class="scenario"><div class="tagrow"><span class="tag">{{s.category}}</span><span class="difficulty">{{s.difficulty}}</span></div><h3>{{s.title}}</h3><p>{{s.description}}</p><a class="btn full" href="{{url_for('assessment',sid=s.id)}}">Start Scenario →</a></article>{% endfor %}</div>
+{% endblock %}

@@ -1,0 +1,3 @@
+{% extends "base.html" %}{% block title %}Assessment — SecureMind{% endblock %}{% block content %}
+<div class="assessment"><div class="eyebrow">{{scenario.category}} · {{scenario.difficulty}}</div><h1>{{scenario.title}}</h1><div class="scenario-text">{{scenario.description}}</div>
+<form method="post"><div class="options">{% for o in options %}<label class="option"><input type="radio" name="response" value="{{loop.index0}}" required><span><b>{{loop.index}}.</b> {{o}}</span></label>{% endfor %}</div><button class="btn full">Analyze My Decision →</button></form></div>{% endblock %}
