@@ -279,5 +279,119 @@ with app.app_context():
     db.create_all()
     seed()
 
+@app.route("/custom-assessment", methods=["GET", "POST"])
+@login_required
+def custom_assessment():
+    if request.method == "POST":
+        scenario_text = request.form.get("scenario", "").strip()
+
+        if not scenario_text:
+            return render_template(
+                "custom_assessment.html",
+                error="Please describe your security situation."
+            )
+
+        text = scenario_text.lower()
+
+        # Risk indicators
+        high_risk_words = [
+            "password", "otp", "one time password", "bank",
+            "credit card", "debit card", "money", "payment",
+            "remote access", "unknown software", "malware",
+            "ransomware", "admin access", "credential",
+            "login", "verification code", "mfa code"
+        ]
+
+        medium_risk_words = [
+            "public wifi", "unknown usb", "qr code",
+            "unknown link", "attachment", "bluetooth",
+            "email", "sms", "popup", "download",
+            "social media", "cloud"
+        ]
+
+        safe_words = [
+            "verify", "official", "trusted", "report",
+            "delete", "block", "deny", "ignore",
+            "security team", "it team"
+        ]
+
+        high_count = sum(1 for word in high_risk_words if word in text)
+        medium_count = sum(1 for word in medium_risk_words if word in text)
+        safe_count = sum(1 for word in safe_words if word in text)
+
+        # Calculate risk score
+        score = 25
+
+        score += high_count * 12
+        score += medium_count * 7
+        score -= safe_count * 8
+
+        score = max(5, min(100, score))
+
+        if score < 40:
+            level = "LOW"
+        elif score < 70:
+            level = "MEDIUM"
+        else:
+            level = "HIGH"
+
+        # Generate explanation
+        if level == "HIGH":
+            reason = (
+                "This situation contains indicators that could expose "
+                "your account, credentials, personal information, or money "
+                "to a security threat."
+            )
+        elif level == "MEDIUM":
+            reason = (
+                "This situation has some security warning signs. "
+                "You should verify the request or source before taking action."
+            )
+        else:
+            reason = (
+                "The situation appears relatively low risk, but you should "
+                "still follow normal security practices."
+            )
+
+        # DO recommendations
+        do_list = [
+            "Verify the person, message, website, or request using an official source.",
+            "Use official applications or websites instead of unknown links.",
+            "Enable multi-factor authentication where available.",
+            "Report suspicious activity to the appropriate IT/security team."
+        ]
+
+        # DON'T recommendations
+        dont_list = [
+            "Do not share passwords, OTPs, MFA codes, or recovery codes.",
+            "Do not open suspicious files or install unknown software.",
+            "Do not bypass browser or security warnings.",
+            "Do not provide sensitive information to an unverified person."
+        ]
+
+        # Adjust recommendations
+        if "password" in text or "otp" in text or "verification code" in text:
+            do_list.insert(
+                0,
+                "Change the affected password immediately if you believe it was exposed."
+            )
+
+        if "bank" in text or "payment" in text or "money" in text:
+            do_list.insert(
+                0,
+                "Contact your bank or financial service through its official contact method."
+            )
+
+        return render_template(
+            "custom_result.html",
+            scenario=scenario_text,
+            score=score,
+            level=level,
+            reason=reason,
+            do_list=do_list,
+            dont_list=dont_list
+        )
+
+    return render_template("custom_assessment.html")
 if __name__=="__main__":
     app.run(host="0.0.0.0",port=5000,debug=True)
